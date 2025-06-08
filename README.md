@@ -40,3 +40,15 @@ Many non-technical users struggle to extract meaningful insights from raw Excel 
 -API costs depend on OpenAI usage
 
 Host Link : https://excel-chatbot-zjdpohf4vmq4uyuwtij5js.streamlit.app/
+
+Screen shots : 
+Average of the age(column): 
+![image](https://github.com/user-attachments/assets/01804600-6f21-40d5-abcb-ad9d14ece300)
+
+Histogram of id(column) :
+![image](https://github.com/user-attachments/assets/7d4a9a0a-9f81-48a5-99ed-4572e62453c3)
+
+BarChart of age:
+![image](https://github.com/user-attachments/assets/34cc5c69-108d-4e4b-9fb0-c71c8ee05abf)
+
+
