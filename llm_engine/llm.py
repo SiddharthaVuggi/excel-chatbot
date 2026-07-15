@@ -1,15 +1,73 @@
+from functools import lru_cache
 from transformers import pipeline
+import torch
 
-_generator = pipeline(
-    "text2text-generation",
-    model="google/flan-t5-base",
-    device="cpu", """central processing unit """           
-)
 
-def call_llm(prompt: str, max_tokens: int = 256) -> str:
+@lru_cache(maxsize=1)
+def load_model():
     """
-    Generate text with Flan-T5 (CPU). Use only max_new_tokens
-    to avoid duplicate-length warnings further.
+    Load the FLAN-T5 model only once.
+
+    Automatically uses GPU if available,
+    otherwise falls back to CPU.
     """
-    resp = _generator(prompt, max_new_tokens=max_tokens)[0]["generated_text"]
-    return resp.strip()
+
+    device = 0 if torch.cuda.is_available() else -1
+
+    return pipeline(
+        task="text2text-generation",
+        model="google/flan-t5-base",
+        tokenizer="google/flan-t5-base",
+        device=device,
+    )
+
+
+def call_llm(
+    prompt: str,
+    max_new_tokens: int = 256,
+    temperature: float = 0.7,
+    do_sample: bool = False,
+) -> str:
+    """
+    Generate a response using Google's FLAN-T5.
+
+    Args:
+        prompt: Input prompt.
+        max_new_tokens: Maximum number of generated tokens.
+        temperature: Controls randomness.
+        do_sample: Enables sampling for more creative responses.
+
+    Returns:
+        Generated text.
+    """
+
+    if not prompt.strip():
+        raise ValueError("Prompt cannot be empty.")
+
+    generator = load_model()
+
+    try:
+        response = generator(
+            prompt,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=do_sample,
+            truncation=True,
+        )
+
+        return response[0]["generated_text"].strip()
+
+    except Exception as e:
+        return f"LLM Error: {str(e)}"
+
+
+if __name__ == "__main__":
+    question = "Explain diabetes in simple words."
+
+    answer = call_llm(question)
+
+    print("\nPrompt:")
+    print(question)
+
+    print("\nResponse:")
+    print(answer)
